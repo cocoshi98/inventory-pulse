@@ -8,12 +8,17 @@ import {
   TableRow,
   Paper,
   Button,
+  CssBaseline,
 } from "@mui/material";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import AddItemForm from "./AddItemForm";
 
 const InventoryTable = () => {
   const [data, setData] = useState([]);
   const [open, setOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(
+    () => JSON.parse(localStorage.getItem("darkMode")) || false
+  );
 
   // Load data from local storage when component mounts
   useEffect(() => {
@@ -22,6 +27,22 @@ const InventoryTable = () => {
       setData(savedData);
     }
   }, []);
+
+   // Toggle dark mode and save preference
+   const toggleDarkMode = () => {
+    setDarkMode((prevMode) => {
+      const newMode = !prevMode;
+      localStorage.setItem("darkMode", JSON.stringify(newMode));
+      return newMode;
+    });
+  };
+
+  // Define themes
+  const theme = createTheme({
+    palette: {
+      mode: darkMode ? "dark" : "light",
+    },
+  });
   
   // Function to update local storage whenever data changes
   const updateLocalStorage = (newData) => {
@@ -50,55 +71,67 @@ const InventoryTable = () => {
   const handleClose = () => setOpen(false);
 
   return (
-    <div>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleOpen}
-        style={{ marginBottom: "10px" }}
-      >
-        Add Item
-      </Button>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div style={{ padding: "10px" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={toggleDarkMode}
+          style={{ marginBottom: "10px", marginRight: "10px" }}
+        >
+          {darkMode ? "Light Mode" : "Dark Mode"}
+        </Button>
 
-      <AddItemForm
-        open={open}
-        handleClose={handleClose}
-        handleAddItem={handleAddItem}
-      />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpen}
+          style={{ marginBottom: "10px" }}
+        >
+          Add Item
+        </Button>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Quantity</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.id}</TableCell>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item.category}</TableCell>
-                <TableCell>{item.quantity}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handleDelete(item.id)}
-                  >
-                    Delete
-                  </Button>
-                </TableCell>
+        <AddItemForm
+          open={open}
+          handleClose={handleClose}
+          handleAddItem={handleAddItem}
+        />
+
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Category</TableCell>
+                <TableCell>Quantity</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </div>
+            </TableHead>
+            <TableBody>
+              {data.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.id}</TableCell>
+                  <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.category}</TableCell>
+                  <TableCell>{item.quantity}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      onClick={() => handleDelete(item.id)}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </div>
+    </ThemeProvider>
   );
 };
 
