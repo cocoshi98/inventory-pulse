@@ -39,9 +39,26 @@ const AddItemForm = ({ open, handleClose, handleAddItem }) => {
   // Handle form submission
   const handleSubmit = () => {
     if (validate()) {
-      handleAddItem(formData); // Generate unique ID
+      
+      // Retrieve existing data from local storage
+      const existingData = JSON.parse(localStorage.getItem("inventoryData")) || [];
+
+      // Generate a unique ID
+      const newId = existingData.length > 0 ? existingData[existingData.length - 1].id + 1 : 1;
+
+      // Create a new item
+      const newItem = { ...formData, id: newId, quantity: Number(formData.quantity) };
+
+      // Update local storage
+      const updatedData = [...existingData, newItem];
+      localStorage.setItem("inventoryData", JSON.stringify(updatedData));
+
+      // Update parent state (fixes missing UI update)
+      handleAddItem(newItem);
+      
       handleClose();
-      setFormData({ name: "", category: "", quantity: "" }); // Reset form
+      // Reset form
+      setFormData({ name: "", category: "", quantity: "" }); 
     }
   };
 
@@ -72,6 +89,7 @@ const AddItemForm = ({ open, handleClose, handleAddItem }) => {
         <TextField
           label="Quantity"
           name="quantity"
+          type="number"
           value={formData.quantity}
           onChange={handleChange}
           fullWidth

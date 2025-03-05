@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
 import {
   Table,
   TableBody,
@@ -10,29 +10,44 @@ import {
   Button,
 } from "@mui/material";
 import AddItemForm from "./AddItemForm";
-import inventoryData from "../Data";
 
 const InventoryTable = () => {
-  const [data, setData] = useState(inventoryData);
+  const [data, setData] = useState([]);
   const [open, setOpen] = useState(false);
 
-  // Open & close the form
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
+  // Load data from local storage when component mounts
+  useEffect(() => {
+    const savedData = JSON.parse(localStorage.getItem("inventoryData"));
+    if (savedData) {
+      setData(savedData);
+    }
+  }, []);
+  
+  // Function to update local storage whenever data changes
+  const updateLocalStorage = (newData) => {
+    localStorage.setItem("inventoryData", JSON.stringify(newData));
+  };
+  
   // Add new item to the table
   const handleAddItem = (newItem) => {
     const newId = data.length > 0 ? data[data.length - 1].id + 1 : 1;
     const updatedItem = { ...newItem, id: newId };
-
-    setData([...data, updatedItem]);
+    const newData = [...data, updatedItem];
+    
+    setData(newData);
+    updateLocalStorage(newData); // Save to local storage
   };
-
+  
   // Delete item from the table
   const handleDelete = (id) => {
     const updatedData = data.filter((item) => item.id !== id);
     setData(updatedData);
+    updateLocalStorage(updatedData); // Save to local storage
   };
+  
+  // Open & close the form
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   return (
     <div>
@@ -59,6 +74,7 @@ const InventoryTable = () => {
               <TableCell>Name</TableCell>
               <TableCell>Category</TableCell>
               <TableCell>Quantity</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
