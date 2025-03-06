@@ -35,6 +35,7 @@ const writeDataToFile = (data) => {
       if (err) {
         reject(err);
       } else {
+        console.log('Data written to file:', jsonData);  // Log the written data
         resolve();
       }
     });
