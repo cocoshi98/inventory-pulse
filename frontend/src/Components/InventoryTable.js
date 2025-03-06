@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import AddItemForm from "./AddItemForm";
+import axios from "axios"; // Import axios for making API requests
 
 const InventoryTable = () => {
   const [data, setData] = useState([]);
@@ -20,13 +21,17 @@ const InventoryTable = () => {
     () => JSON.parse(localStorage.getItem("darkMode")) || false
   );
 
-  // Load data from local storage when component mounts
+  // Fetch data from the backend API
   useEffect(() => {
-    const savedData = JSON.parse(localStorage.getItem("inventoryData"));
-    if (savedData) {
-      setData(savedData);
-    }
+    axios.get("http://localhost:5000/api/items")
+      .then((response) => setData(response.data))
+      .catch((error) => console.error("Error fetching data:", error));
   }, []);
+
+  // // Function to update data locally after an API call
+  // const updateData = (newData) => {
+  //   setData(newData);
+  // };
 
    // Toggle dark mode and save preference
    const toggleDarkMode = () => {
@@ -45,25 +50,26 @@ const InventoryTable = () => {
   });
   
   // Function to update local storage whenever data changes
-  const updateLocalStorage = (newData) => {
-    localStorage.setItem("inventoryData", JSON.stringify(newData));
-  };
+  // const updateLocalStorage = (newData) => {
+  //   localStorage.setItem("inventoryData", JSON.stringify(newData));
+  // };
   
   // Add new item to the table
   const handleAddItem = (newItem) => {
-    const newId = data.length > 0 ? data[data.length - 1].id + 1 : 1;
-    const updatedItem = { ...newItem, id: newId };
-    const newData = [...data, updatedItem];
-    
-    setData(newData);
-    updateLocalStorage(newData); // Save to local storage
+    axios.post("http://localhost:5000/api/items", newItem)
+      .then((response) => {
+        setData((prevData) => [...prevData, response.data]);
+      })
+      .catch((error) => console.error("Error adding item:", error));
   };
   
   // Delete item from the table
   const handleDelete = (id) => {
-    const updatedData = data.filter((item) => item.id !== id);
-    setData(updatedData);
-    updateLocalStorage(updatedData); // Save to local storage
+    axios.delete(`http://localhost:5000/api/items/${id}`)
+      .then(() => {
+        setData((prevData) => prevData.filter((item) => item.id !== id));
+      })
+      .catch((error) => console.error("Error deleting item:", error));
   };
   
   // Open & close the form
