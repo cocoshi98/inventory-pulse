@@ -14,41 +14,70 @@ app.use(express.json()); // For parsing application/json
 // Path to the JSON file
 const dataFilePath = path.join(__dirname, 'data.json');
 
-// Read data from the JSON file
+// Read data from the JSON file asynchronously
 const readDataFromFile = () => {
-    const rawData = fs.readFileSync(dataFilePath);
-    return JSON.parse(rawData);
-  };
+  return new Promise((resolve, reject) => {
+    fs.readFile(dataFilePath, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(JSON.parse(data));
+      }
+    });
+  });
+};
 
-// Save data to the JSON file
+// Save data to the JSON file asynchronously
 const writeDataToFile = (data) => {
+  return new Promise((resolve, reject) => {
     const jsonData = JSON.stringify(data, null, 2);
-    fs.writeFileSync(dataFilePath, jsonData);
-  };
+    fs.writeFile(dataFilePath, jsonData, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
 
 // Get all items (read from data.json)
-app.get('/api/items', (req, res) => {
-    const items = readDataFromFile();
+app.get('/api/items', async (req, res) => {
+  try {
+    const items = await readDataFromFile();
     res.json(items);
-  });
-
-// Add a new item
-app.post('/api/items', (req, res) => {
-    const newItem = req.body;
-    const items = readDataFromFile();
-    newItem.id = items.length ? items[items.length - 1].id + 1 : 1;
-    items.push(newItem);
-    writeDataToFile(items); // Save the updated data to data.json
-    res.status(201).json(newItem);
+  } catch (err) {
+    console.error('Error reading data:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
-// Delete an item by id
-app.delete('/api/items/:id', (req, res) => {
+// Add a new item
+app.post('/api/items', async (req, res) => {
+  try {
+    const newItem = req.body;
+    const items = await readDataFromFile();
+    newItem.id = items.length ? items[items.length - 1].id + 1 : 1;
+    items.push(newItem);
+    await writeDataToFile(items); // Save the updated data to data.json
+    res.status(201).json(newItem);
+  } catch (err) {
+    console.error('Error adding item:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.delete('/api/items/:id', async (req, res) => {
+  try {
     const { id } = req.params;
-    let items = readDataFromFile();
+    let items = await readDataFromFile();
     items = items.filter(item => item.id != id);
-    writeDataToFile(items); // Save the updated data to data.json
+    await writeDataToFile(items); // Save the updated data to data.json
     res.status(200).json({ message: 'Item deleted' });
+  } catch (err) {
+    console.error('Error deleting item:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 // Start the server
