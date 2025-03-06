@@ -5,7 +5,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const app = express();
-const port = 5000; // Backend will run on port 5000
+const port = process.env.PORT || 10000;  // Force to use 10000 or fallback to 10000
 
 // Enable CORS to allow the frontend to access the backend
 app.use(cors());
