@@ -23,7 +23,7 @@ const InventoryTable = () => {
 
   // Fetch data from the backend API
   useEffect(() => {
-    axios.get("http://localhost:10000/api/items")
+    axios.get("https://inventory-pulse.onrender.com/api/items")
       .then((response) => setData(response.data))
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
@@ -56,7 +56,7 @@ const InventoryTable = () => {
   
   // Add new item to the table
   const handleAddItem = (newItem) => {
-    axios.post("http://localhost:10000/api/items", newItem)
+    axios.post("https://inventory-pulse.onrender.com/api/items", newItem)
       .then((response) => {
         setData((prevData) => [...prevData, response.data]);
       })
@@ -65,7 +65,7 @@ const InventoryTable = () => {
   
   // Delete item from the table
   const handleDelete = (id) => {
-    axios.delete(`http://localhost:10000/api/items/${id}`)
+    axios.delete(`https://inventory-pulse.onrender.com/api/items/${id}`)
       .then(() => {
         setData((prevData) => prevData.filter((item) => item.id !== id));
       })
