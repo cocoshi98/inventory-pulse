@@ -16,8 +16,11 @@ const dataFilePath = path.join(__dirname, 'data.json');
 
 // Read data from the JSON file asynchronously
 const readDataFromFile = () => {
+  // Resolve is for successful operation, reject is for negative operation
   return new Promise((resolve, reject) => {
+    // Reads file, utf8 specifies encoding of file (in this case, standard character encoding)
     fs.readFile(dataFilePath, 'utf8', (err, data) => {
+      // Error handling
       if (err) {
         reject(err);
       } else {
@@ -30,6 +33,7 @@ const readDataFromFile = () => {
 // Save data to the JSON file asynchronously
 const writeDataToFile = (data) => {
   return new Promise((resolve, reject) => {
+    // Mapping and reordering data in a consistent structure
     const orderedData = data.map(item => ({
       id: item.id,
       name: item.name,
@@ -37,6 +41,7 @@ const writeDataToFile = (data) => {
       quantity: item.quantity
   }));
     const jsonData = JSON.stringify(orderedData, null, 2);
+    // Writes to data.json file
     fs.writeFile(dataFilePath, jsonData, (err) => {
       if (err) {
         reject(err);
@@ -50,7 +55,9 @@ const writeDataToFile = (data) => {
 // Get all items (read from data.json)
 app.get('/api/items', async (req, res) => {
   try {
+    // Items contain data read from the file
     const items = await readDataFromFile();
+    // Sends the data as a JSON response
     res.json(items);
   } catch (err) {
     console.error('Error reading data:', err);
@@ -61,11 +68,16 @@ app.get('/api/items', async (req, res) => {
 // Add a new item
 app.post('/api/items', async (req, res) => {
   try {
+    // Extracts data from request body
     const newItem = req.body;
+    // Reads existing data
     const items = await readDataFromFile();
+    // Generates new item's ID
     newItem.id = items.length ? items[items.length - 1].id + 1 : 1;
+    // Adds item to list
     items.push(newItem);
-    await writeDataToFile(items); // Save the updated data to data.json
+    // Save the updated data to data.json
+    await writeDataToFile(items); 
     res.status(201).json(newItem);
   } catch (err) {
     console.error('Error adding item:', err);

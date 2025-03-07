@@ -28,11 +28,6 @@ const InventoryTable = () => {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-  // // Function to update data locally after an API call
-  // const updateData = (newData) => {
-  //   setData(newData);
-  // };
-
    // Toggle dark mode and save preference
    const toggleDarkMode = () => {
     setDarkMode((prevMode) => {
@@ -49,17 +44,14 @@ const InventoryTable = () => {
     },
   });
   
-  // Function to update local storage whenever data changes
-  // const updateLocalStorage = (newData) => {
-  //   localStorage.setItem("inventoryData", JSON.stringify(newData));
-  // };
-  
   // Add new item to the table
   const handleAddItem = (newItem) => {
     axios.post("https://inventory-pulse.onrender.com/api/items", newItem)
       .then((response) => {
+        // Updating data
         setData((prevData) => [...prevData, response.data]);
       })
+      // Catches and logs the error occured during POST request
       .catch((error) => console.error("Error adding item:", error));
   };
   
@@ -72,8 +64,10 @@ const InventoryTable = () => {
           .then((response) => {
             setData(response.data);  // Update the data with the latest from the backend
           })
+          // Catches and logs the error occured during GET request
           .catch((error) => console.error("Error fetching updated data:", error));
       })
+      // Catches and logs the error occured during DELETE request
       .catch((error) => console.error("Error deleting item:", error));
   };
   

@@ -7,7 +7,9 @@ import {
   TextField,
   Button,
 } from "@mui/material";
+import axios from "axios"; // Import axios for making API requests
 
+// Form for adding items
 const AddItemForm = ({ open, handleClose, handleAddItem }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -33,32 +35,27 @@ const AddItemForm = ({ open, handleClose, handleAddItem }) => {
         : "Quantity must be a number.";
 
     setErrors(tempErrors);
+    // Checks if there are any errors found
     return Object.values(tempErrors).every((x) => x === "");
   };
 
   // Handle form submission
   const handleSubmit = () => {
     if (validate()) {
-      
-      // Retrieve existing data from local storage
-      const existingData = JSON.parse(localStorage.getItem("inventoryData")) || [];
-
-      // Generate a unique ID
-      const newId = existingData.length > 0 ? existingData[existingData.length - 1].id + 1 : 1;
-
       // Create a new item
-      const newItem = { ...formData, id: newId, quantity: Number(formData.quantity) };
-
-      // Update local storage
-      const updatedData = [...existingData, newItem];
-      localStorage.setItem("inventoryData", JSON.stringify(updatedData));
-
-      // Update parent state (fixes missing UI update)
-      handleAddItem(newItem);
-      
-      handleClose();
-      // Reset form
-      setFormData({ name: "", category: "", quantity: "" }); 
+      const newItem = { ...formData, quantity: Number(formData.quantity) };
+  
+      // Send new item to backend API
+      axios.post("http://localhost:10000/api/items", newItem)
+        .then((response) => {
+          // Update parent state with the new item (fixes missing UI update)
+          handleAddItem(response.data);  // Assuming the response contains the new item
+          handleClose();
+          
+          // Reset form
+          setFormData({ name: "", category: "", quantity: "" });
+        })
+        .catch((error) => console.error("Error adding item:", error));
     }
   };
 
