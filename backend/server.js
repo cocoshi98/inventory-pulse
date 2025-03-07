@@ -51,6 +51,13 @@ const writeDataToFile = (data) => {
 app.get('/api/items', async (req, res) => {
   try {
     const items = await readDataFromFile();
+    // Ensure the correct order before sending the response
+    const orderedItems = items.map(item => ({
+      id: item.id,
+      name: item.name,
+      category: item.category,
+      quantity: item.quantity
+  }));
     res.json(items);
   } catch (err) {
     console.error('Error reading data:', err);
