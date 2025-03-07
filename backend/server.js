@@ -30,12 +30,17 @@ const readDataFromFile = () => {
 // Save data to the JSON file asynchronously
 const writeDataToFile = (data) => {
   return new Promise((resolve, reject) => {
-    const jsonData = JSON.stringify(data, null, 2);
+    const orderedData = data.map(item => ({
+      id: item.id,
+      name: item.name,
+      category: item.category,
+      quantity: item.quantity
+  }));
+    const jsonData = JSON.stringify(orderedData, null, 2);
     fs.writeFile(dataFilePath, jsonData, (err) => {
       if (err) {
         reject(err);
       } else {
-        console.log('Data written to file:', jsonData);  // Log the written data
         resolve();
       }
     });
