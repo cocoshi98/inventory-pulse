@@ -67,7 +67,12 @@ const InventoryTable = () => {
   const handleDelete = (id) => {
     axios.delete(`https://inventory-pulse.onrender.com/api/items/${id}`)
       .then(() => {
-        setData((prevData) => prevData.filter((item) => item.id !== id));
+        // Fetch the updated data after deletion
+        axios.get("https://inventory-pulse.onrender.com/api/items")
+          .then((response) => {
+            setData(response.data);  // Update the data with the latest from the backend
+          })
+          .catch((error) => console.error("Error fetching updated data:", error));
       })
       .catch((error) => console.error("Error deleting item:", error));
   };
@@ -108,7 +113,7 @@ const InventoryTable = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
+                {/* <TableCell>ID</TableCell> */}
                 <TableCell>Name</TableCell>
                 <TableCell>Category</TableCell>
                 <TableCell>Quantity</TableCell>
@@ -118,7 +123,7 @@ const InventoryTable = () => {
             <TableBody>
               {data.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.id}</TableCell>
+                  {/* <TableCell>{item.id}</TableCell> */}
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.category}</TableCell>
                   <TableCell>{item.quantity}</TableCell>

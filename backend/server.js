@@ -51,13 +51,6 @@ const writeDataToFile = (data) => {
 app.get('/api/items', async (req, res) => {
   try {
     const items = await readDataFromFile();
-    // Ensure the correct order before sending the response
-    const orderedItems = items.map(item => ({
-      id: item.id,
-      name: item.name,
-      category: item.category,
-      quantity: item.quantity
-  }));
     res.json(items);
   } catch (err) {
     console.error('Error reading data:', err);
@@ -84,9 +77,18 @@ app.delete('/api/items/:id', async (req, res) => {
   try {
     const { id } = req.params;
     let items = await readDataFromFile();
+    
+    // Filter out the deleted item
     items = items.filter(item => item.id != id);
+
+    // Reassign IDs sequentially
+    items = items.map((item, index) => ({
+      ...item,
+      id: index + 1, // Ensure IDs start from 1 and increase sequentially
+    }));
+
     await writeDataToFile(items); // Save the updated data to data.json
-    res.status(200).json({ message: 'Item deleted' });
+    res.status(200).json({  updatedItems: items });
   } catch (err) {
     console.error('Error deleting item:', err);
     res.status(500).json({ message: 'Internal server error' });

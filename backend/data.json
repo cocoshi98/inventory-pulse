@@ -1,14 +1,14 @@
 [
   {
     "id": 1,
-    "name": "Item 1",
-    "category": "Category 1",
-    "quantity": 10
+    "name": "test2",
+    "category": "test2",
+    "quantity": 2
   },
   {
     "id": 2,
-    "name": "test",
-    "category": "test",
-    "quantity": 155
+    "name": "test4",
+    "category": "test4",
+    "quantity": 4
   }
 ]
